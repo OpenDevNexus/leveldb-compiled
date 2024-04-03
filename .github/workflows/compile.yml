@@ -41,6 +41,7 @@ jobs:
           devenv /build Release leveldb.sln
           tree /F
           copy ./Release/leveldb.lib ../lib-windows
+          copy ./Release/leveldb.dll ../lib-windows
 
       - name: Commit changes linux
         if: matrix.os == 'ubuntu-latest'
