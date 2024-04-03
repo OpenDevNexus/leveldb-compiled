@@ -1,0 +1,62 @@
+name: Compile LevelDB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Compile for linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          rm -rf build-linux || true
+          rm -rf lib-linux || true
+          mkdir build-linux && mkdir lib-linux && cd build-linux
+          cmake -DCMAKE_BUILD_TYPE=Release ../leveldb && cmake --build .
+          cp libleveldb.a ../lib-linux
+          tree
+
+
+      - name: Compile for windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          $env:Path += ";C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE"
+          Remove-Item -LiteralPath "build-windows" -Force -Recurse -ErrorAction SilentlyContinue
+          Remove-Item -LiteralPath "lib-windows" -Force -Recurse -ErrorAction SilentlyContinue
+          mkdir build-windows
+          mkdir lib-windows
+          cd build-windows
+          cmake -G "Visual Studio 17 2022" -A x64 ../leveldb
+          devenv /build Release leveldb.sln
+          copy ./Release/leveldb.lib ../lib-windows
+
+      - name: Commit changes linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git pull origin main || true
+          git add ./lib-linux
+          git commit -m "compile leveldb" || true
+          git push || true
+
+      - name: Commit changes windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git pull origin main
+          git add ./lib-windows
+          git commit -m "compile leveldb"
+          git push
