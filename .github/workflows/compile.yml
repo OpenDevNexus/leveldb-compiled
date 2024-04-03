@@ -24,8 +24,8 @@ jobs:
           rm -rf lib-linux || true
           mkdir build-linux && mkdir lib-linux && cd build-linux
           cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ../leveldb && cmake --build .
-          cp libleveldb.a ../lib-linux
           tree
+          cp libleveldb.a ../lib-linux
 
 
       - name: Compile for windows
