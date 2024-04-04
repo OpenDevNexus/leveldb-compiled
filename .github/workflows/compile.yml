@@ -46,7 +46,7 @@ jobs:
           cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ../leveldb
           mingw32-make
           tree /F
-          copy liblevel.a ../lib-windows
+          copy libleveldb.a.a ../lib-windows
 
 #          $env:Path += ";C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE"
 #          cmake -G "Visual Studio 17 2022" -A x64 ../leveldb
