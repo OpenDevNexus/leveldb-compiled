@@ -28,19 +28,29 @@ jobs:
           cp libleveldb.a ../lib-linux
 
 
+      - name: Install MinGW
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install mingw -y
+
       - name: Compile for windows
         if: matrix.os == 'windows-latest'
         run: |
-          $env:Path += ";C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE"
+          $env:Path += ";C:\tools\mingw\bin"
+          $env:Path += ";C:\tools\mingw\msys\1.0\bin"
           Remove-Item -LiteralPath "build-windows" -Force -Recurse -ErrorAction SilentlyContinue
           Remove-Item -LiteralPath "lib-windows" -Force -Recurse -ErrorAction SilentlyContinue
           mkdir build-windows
           mkdir lib-windows
           cd build-windows
-          cmake -G "Visual Studio 17 2022" -A x64 ../leveldb
-          devenv /build Release leveldb.sln
+          cmake -G "MinGW Makefiles" ../leveldb
+          mingw32-make
           tree /F
           copy ./Release/leveldb.lib ../lib-windows
+
+#          $env:Path += ";C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE"
+#          cmake -G "Visual Studio 17 2022" -A x64 ../leveldb
+#          devenv /build Release leveldb.sln
 
       - name: Commit changes linux
         if: matrix.os == 'ubuntu-latest'
